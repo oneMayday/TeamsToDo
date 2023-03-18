@@ -1,7 +1,9 @@
+import datetime
+
 from django.test import TestCase
 from django.test.client import Client
 
-from todo.models import Task
+from todo.models import Task, PersonalList
 from users.models import User
 
 
@@ -39,6 +41,7 @@ class Settings(TestCase):
 		cls.task1_user1 = Task.objects.create(
 			title='Task1 by user1',
 			description='Task1 by user1 description',
+			due_date=datetime.date(2025, 12, 5),
 			owner=cls.test_user1,
 		)
 		cls.task2_user1 = Task.objects.create(
@@ -65,8 +68,20 @@ class Settings(TestCase):
 		cls.task1_user3 = Task.objects.create(
 			title='Task1 by user3',
 			description='Task1 by user3 description',
-			owner=cls.test_user3
+			owner=cls.test_user3,
 		)
+		cls.personal_list_user1 = PersonalList.objects.create(
+			title='Personal list by user1',
+			description='Personal list by user1 description',
+			owner=cls.test_user1,
+		)
+
+		cls.personal_list_user1.tasks.set([cls.task1_user1, cls.task2_user1])
+
 	@classmethod
 	def tearDownClass(cls):
 		super().tearDownClass()
+
+	def error_msg(self):
+		error_msg = f'\n-------- Ошибка в тесте: {self.id()} --------'
+		return error_msg
