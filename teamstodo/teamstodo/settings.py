@@ -1,5 +1,7 @@
 import os
+
 from pathlib import Path
+from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -7,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gceb1tltj1s&8kxa9+j+p7%c5cht7yy#h^)9c)zsi^$-k93(m#'
+SECRET_KEY = config('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -19,6 +21,7 @@ ALLOWED_HOSTS = []
 # Application definition
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -65,13 +68,17 @@ WSGI_APPLICATION = 'teamstodo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ToDo',
-        'USER': 'postgres',
-        'PASSWORD': 'mayday',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER_NAME'),
+        'PASSWORD': config('DB_USER_PASSWORD'),
         'HOST': 'localhost',
         'PORT': 5432,
     }
 }
+
+
+# Custom user model
+AUTH_USER_MODEL = 'users.User'
 
 
 # Password validation
