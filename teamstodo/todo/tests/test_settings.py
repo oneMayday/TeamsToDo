@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase
 from django.test.client import Client
 
-from todo.models import Task, PersonalList
+from todo.models import Task, PersonalList, TeamList
 from users.models import User
 
 
@@ -77,6 +77,13 @@ class Settings(TestCase):
 		)
 
 		cls.personal_list_user1.tasks.set([cls.task1_user1, cls.task2_user1])
+
+		cls.team_list = TeamList.objects.create(
+			title='Team list',
+			description='Team list description',
+		)
+		cls.team_list.members.set([cls.test_user1, cls.test_user2, cls.test_user3])
+		cls.team_list.tasks.set([cls.task1_user1, cls.task1_user2, cls.task1_user3])
 
 	@classmethod
 	def tearDownClass(cls):
