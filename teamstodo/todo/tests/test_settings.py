@@ -33,9 +33,12 @@ class Settings(TestCase):
 
 		# Anonymous and authenticated users.
 		cls.guest_user = Client()
-		cls.authorized_user1 = Client().login(username='test_user1', password='testuser1_password')
-		cls.authorized_user2 = Client().login(username='test_user2', password='testuser2_password')
-		cls.authorized_user3 = Client().login(username='test_user3', password='testuser3_password')
+		cls.authorized_user1 = Client()
+		cls.authorized_user2 = Client()
+		cls.authorized_user3 = Client()
+		cls.authorized_user1.login(username='test_user1', password='testuser1_password')
+		cls.authorized_user2.login(username='test_user2', password='testuser2_password')
+		cls.authorized_user3.login(username='test_user3', password='testuser3_password')
 
 		# Add tasks to db.
 		cls.task1_user1 = Task.objects.create(
