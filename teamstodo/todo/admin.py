@@ -1,8 +1,7 @@
 from django.contrib import admin
 
-from .models import Task, PersonalList, TeamList
+from .models import Task, TeamList
 
 
 admin.site.register(Task)
-admin.site.register(PersonalList)
 admin.site.register(TeamList)

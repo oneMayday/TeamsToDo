@@ -1,9 +1,18 @@
-from django.urls import path
+from django.urls import path, include
 
-from todo.views import TaskAPIView, PersonalListAPIView
+from rest_framework.routers import DefaultRouter
 
+from .views import TaskAPIView, TeamListAPIView
+
+
+# Routers
+router_tasks, router_team_list = DefaultRouter(), DefaultRouter()
+
+router_tasks.register(r'tasks', TaskAPIView, basename='tasks')
+router_team_list.register(r'teamlist', TeamListAPIView, basename='teamlist')
 
 urlpatterns = [
-	path(r'tasks', TaskAPIView.as_view(), name='tasks'),
-	path(r'personallist', PersonalListAPIView.as_view(), name='personallist'),
+	path('api-auth/', include('rest_framework.urls')),
+	path('', include(router_tasks.urls)),
+	path('', include(router_team_list.urls)),
 ]

@@ -43,34 +43,28 @@ class Settings(TestCase):
 		# Add tasks to db.
 		cls.task1_user1 = Task.objects.create(
 			title='Task1 by user1',
-			description='Task1 by user1 description',
 			due_date=datetime.date(2025, 12, 5),
 			owner=cls.test_user1,
 		)
 		cls.task2_user1 = Task.objects.create(
 			title='Task2 by user1',
-			description='Task2 by user1 description',
 			owner=cls.test_user1,
 		)
 		cls.task3_user1 = Task.objects.create(
 			title='Task3 by user1',
-			description='Task3 by user1 description',
 			owner=cls.test_user1,
 		)
 
 		cls.task1_user2 = Task.objects.create(
 			title='Task1 by user2',
-			description='Task1 by user2 description',
 			owner=cls.test_user2,
 		)
 		cls.task2_user2 = Task.objects.create(
 			title='Task2 by user2',
-			description='Task2 by user2 description',
 			owner=cls.test_user2,
 		)
 		cls.task1_user3 = Task.objects.create(
 			title='Task1 by user3',
-			description='Task1 by user3 description',
 			owner=cls.test_user3,
 		)
 		cls.personal_list_user1 = PersonalList.objects.create(

@@ -7,7 +7,6 @@ class TaskTestCase(Settings):
 	"""Task model test cases"""
 	def test_created_tasks_poles(self):
 		self.assertEqual(self.task1_user1.title, 'Task1 by user1', self.error_msg())
-		self.assertEqual(self.task1_user1.description, 'Task1 by user1 description', self.error_msg())
 		self.assertFalse(self.task1_user1.status)
 		self.assertEqual(self.task1_user1.due_date, date(2025, 12, 5), self.error_msg())
 		self.assertEqual(self.task1_user1.owner, self.test_user1, self.error_msg())
