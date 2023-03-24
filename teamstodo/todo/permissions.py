@@ -8,6 +8,11 @@ class IsOwner(BasePermission):
 		return request.user == obj.owner
 
 
+class IsNotOwner(BasePermission):
+	def has_object_permission(self, request, view, obj):
+		return request.user != obj.owner
+
+
 class TaskIsUserInMembership(BasePermission):
 	def has_object_permission(self, request, view, obj):
 		user = request.user

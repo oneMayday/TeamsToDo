@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Task, TeamList
-from .permissions import IsOwner, TaskIsUserInMembership, TeamListMembeship
+from .permissions import IsOwner, IsNotOwner
 from .serializers import TaskSerializer, TeamListSerializer, CreateTaskSerializer, UpdateTaskSerializer, \
 	CreateTeamListSerializer
 
@@ -13,33 +13,31 @@ from .serializers import TaskSerializer, TeamListSerializer, CreateTaskSerialize
 class TaskAPIView(ModelViewSet):
 	permission_classes = [IsAuthenticated, ]
 
-	def get_queryset(self):
+	def get_queryset(self):  # works
 		"""Get user's taken tasks"""
 		user = self.request.user
 		queryset = Task.objects.filter(who_takes=user.pk)
 		return queryset
 
 	def get_serializer_class(self):
-		if self.action == 'create':
+		if self.action in ['create', 'partial-update']:
 			serializer_class = CreateTaskSerializer
-		elif self.action in ['partial-update', 'take_task']:
+		elif self.action == 'update':
 			serializer_class = UpdateTaskSerializer
 		else:
 			serializer_class = TaskSerializer
 		return serializer_class
 
-	# def get_permissions(self):
-	# 	if self.action in ['list', 'retrieve', 'create']:
-	# 		permission_classes = [IsAuthenticated, ]
-	# 	elif self.action in ['destroy']:
-	# 		permission_classes = [IsAuthenticated, IsOwner]
-	# 	elif self.action in ['update', 'partial_update']:
-	# 		permission_classes = [TaskIsUserInMembership]
-	# 	else:
-	# 		permission_classes = [IsAuthenticated]
-	# 	return [permission() for permission in permission_classes]
+	def get_permissions(self):
+		if self.action in ['destroy', 'partial_update']:
+			permission_classes = [IsAuthenticated, IsOwner]
+		elif self.action == 'update':
+			permission_classes = [IsAuthenticated, IsNotOwner]
+		else:
+			permission_classes = [IsAuthenticated]
+		return [permission() for permission in permission_classes]
 
-	def create(self, request, *args, **kwargs):
+	def create(self, request, *args, **kwargs):  #works
 		"""Create task if user in team list members."""
 		user = request.user
 		target_teamlist = TeamList.objects.get(pk=request.data['teamlist_relation']).members.values('id')

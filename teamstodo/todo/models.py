@@ -31,7 +31,7 @@ class Task(models.Model):
 	update_date = models.DateField('Дата обновления', auto_now_add=True)
 	due_date = models.DateField('Дата окончания', null=True)
 	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_owner')
-	who_takes = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='who_takes')
+	who_takes = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='who_takes', verbose_name='Исполнитель')
 	teamlist_relation = models.ForeignKey(
 		TeamList,
 		on_delete=models.CASCADE,
