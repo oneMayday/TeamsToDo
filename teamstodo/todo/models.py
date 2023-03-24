@@ -4,10 +4,10 @@ from users.models import User
 
 
 class TeamList(models.Model):
-	"""List of tasks for the team work"""
+	"""List of tasks for the team work."""
 	title = models.CharField('Название', max_length=100)
 	description = models.CharField('Описание', max_length=255, null=True)
-	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_owner')
 	members = models.ManyToManyField(User, related_name='members')
 	time_create = models.TimeField('Время создания', auto_now_add=True)
 	date_create = models.DateField('Дата создания', auto_now_add=True)
@@ -24,13 +24,14 @@ class TeamList(models.Model):
 
 
 class Task(models.Model):
-	"""Task model"""
+	"""Task model."""
 	title = models.CharField('Описание задачи', max_length=200)
 	status = models.BooleanField('Статус задачи', default=False)
 	create_date = models.DateField('Дата создания', auto_now_add=True)
 	update_date = models.DateField('Дата обновления', auto_now_add=True)
 	due_date = models.DateField('Дата окончания', null=True)
-	owner = models.ForeignKey(User, on_delete=models.CASCADE)
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_owner')
+	who_takes = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='who_takes')
 	teamlist_relation = models.ForeignKey(
 		TeamList,
 		on_delete=models.CASCADE,
