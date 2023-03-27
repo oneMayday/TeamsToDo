@@ -68,16 +68,19 @@ class Settings(TestCase):
 			title='Task1 by user1',
 			status=True,
 			owner=cls.test_user1,
+			who_takes=cls.test_user1,
 			teamlist_relation=cls.team_list1,
 		)
 		cls.task2_user1 = Task.objects.create(
 			title='Task2 by user1',
 			owner=cls.test_user1,
+			who_takes=cls.test_user2,
 			teamlist_relation=cls.team_list1,
 		)
 		cls.task3_user1 = Task.objects.create(
 			title='Task3 by user1',
 			owner=cls.test_user1,
+			who_takes=cls.test_user3,
 			teamlist_relation=cls.team_list2,
 		)
 		cls.task1_user2 = Task.objects.create(
@@ -93,12 +96,14 @@ class Settings(TestCase):
 		cls.task1_user3 = Task.objects.create(
 			title='Task1 by user3',
 			owner=cls.test_user3,
+			who_takes=cls.test_user1,
 			teamlist_relation=cls.team_list2,
 		)
 		cls.task1_user4 = Task.objects.create(
 			title='Task1 by user4',
 			status=True,
 			owner=cls.test_user4,
+			who_takes=cls.test_user1,
 			teamlist_relation=cls.team_list2,
 		)
 
