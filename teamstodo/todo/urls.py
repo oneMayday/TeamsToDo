@@ -6,7 +6,6 @@ from .views import TaskAPIView, TeamListAPIView
 
 # Routers
 router_tasks, router_team_list = DefaultRouter(), DefaultRouter()
-router_update = DefaultRouter()
 
 router_tasks.register(r'tasks', TaskAPIView, basename='tasks')
 router_team_list.register(r'teamlist', TeamListAPIView, basename='teamlist')

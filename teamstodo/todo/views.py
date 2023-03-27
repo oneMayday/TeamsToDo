@@ -11,13 +11,17 @@ from .serializers import TaskSerializer, TeamListSerializer, CreateTaskSerialize
 
 
 class TaskAPIView(ModelViewSet):
-	permission_classes = [IsAuthenticated, ]
-
-	def get_queryset(self):  # works
-		"""Get user's taken tasks"""
-		user = self.request.user
-		queryset = Task.objects.filter(who_takes=user.pk)
-		return queryset
+	queryset = Task.objects.all()
+	# def get_queryset(self):  # works
+	# 	"""Get user's taken tasks"""
+	# 	user = self.request.user
+	#
+	# 	teamlist_queryset = TeamList.objects.prefetch_related('members').filter(members__pk=user.pk)
+	# 	queryset = []
+	# 	for tl in teamlist_queryset:
+	# 		result = Task.objects.filter(teamlist_relation_id=tl.pk)
+	# 		queryset.extend(result)
+	# 	return queryset
 
 	def get_serializer_class(self):
 		if self.action in ['create', 'partial-update']:
@@ -52,13 +56,13 @@ class TaskAPIView(ModelViewSet):
 		else:
 			raise Exception('У вас не прав для добавления задачи в этот список')
 
-	@action(methods=['PUT', 'PATCH'], detail=True)
-	def take_task(self, request):
-		instance = self.get_object()
-		serializer = self.get_serializer(instance, data=request.data)
-		serializer.is_valid(raise_exception=True)
-		serializer.save()
-		return Response(serializer.data)
+	# @action(methods=['PUT', 'PATCH'], detail=False)
+	# def take_task(self, request, pk=None):
+	# 	instance = self.get_object()
+	# 	serializer = self.get_serializer(instance, data=request.data)
+	# 	serializer.is_valid(raise_exception=True)
+	# 	serializer.save()
+	# 	return Response(serializer.data)
 
 
 class TeamListAPIView(ModelViewSet):
@@ -85,6 +89,6 @@ class TeamListAPIView(ModelViewSet):
 
 	@action(detail=True, methods=['GET'])
 	def all_tasks(self, request, pk):
-		tasks = TeamList.objects.get(pk=pk).tasks
+		tasks = Task.objects.select_related('teamlist_relation').filter(teamlist_relation_id=pk)
 		serializer = TaskSerializer(tasks, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
