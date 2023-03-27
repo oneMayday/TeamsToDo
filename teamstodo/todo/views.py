@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Task, TeamList
-from .permissions import IsOwner, IsNotOwner
+from .permissions import IsOwner
 from .serializers import TaskSerializer, TeamListSerializer, CreateTaskSerializer, UpdateTaskSerializer, \
 	CreateTeamListSerializer
 
@@ -24,9 +24,9 @@ class TaskAPIView(ModelViewSet):
 	# 	return queryset
 
 	def get_serializer_class(self):
-		if self.action in ['create', 'partial-update']:
+		if self.action in ['create', 'partial_update']:
 			serializer_class = CreateTaskSerializer
-		elif self.action == 'update':
+		elif self.action in ['update', 'take_task']:
 			serializer_class = UpdateTaskSerializer
 		else:
 			serializer_class = TaskSerializer
@@ -36,12 +36,12 @@ class TaskAPIView(ModelViewSet):
 		if self.action in ['destroy', 'partial_update']:
 			permission_classes = [IsAuthenticated, IsOwner]
 		elif self.action == 'update':
-			permission_classes = [IsAuthenticated, IsNotOwner]
+			permission_classes = [IsAuthenticated]
 		else:
 			permission_classes = [IsAuthenticated]
 		return [permission() for permission in permission_classes]
 
-	def create(self, request, *args, **kwargs):  #works
+	def create(self, request, *args, **kwargs):
 		"""Create task if user in team list members."""
 		user = request.user
 		target_teamlist = TeamList.objects.get(pk=request.data['teamlist_relation']).members.values('id')
@@ -56,13 +56,13 @@ class TaskAPIView(ModelViewSet):
 		else:
 			raise Exception('У вас не прав для добавления задачи в этот список')
 
-	# @action(methods=['PUT', 'PATCH'], detail=False)
-	# def take_task(self, request, pk=None):
-	# 	instance = self.get_object()
-	# 	serializer = self.get_serializer(instance, data=request.data)
-	# 	serializer.is_valid(raise_exception=True)
-	# 	serializer.save()
-	# 	return Response(serializer.data)
+	@action(methods=['PUT', 'PATCH'], detail=True)
+	def take_task(self, request, pk=None):
+		instance = self.get_object()
+		serializer = self.get_serializer(instance, data=request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+		return Response(serializer.data)
 
 
 class TeamListAPIView(ModelViewSet):

@@ -38,7 +38,7 @@ class TeamListSerializer(ModelSerializer):
 
 
 class CreateTeamListSerializer(ModelSerializer):
-	"""Create teamlist without any tasks (tasks can be added later)"""
+	"""Create teamlist without any tasks (tasks could be added later)"""
 	owner = HiddenField(default=CurrentUserDefault())
 
 	class Meta:
