@@ -6,8 +6,14 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import Task, TeamList
 from .permissions import IsOwner
-from .serializers import TaskSerializer, TeamListSerializer, CreateTaskSerializer, UpdateTaskSerializer, \
-	CreateTeamListSerializer
+from .serializers import (
+	CreateTaskSerializer,
+	CreateTeamListSerializer,
+	TaskSerializer,
+	TeamListSerializer,
+	UpdateTaskSerializer
+)
+from .utils import update_task_api_view, create_task_api_view
 
 
 class TaskAPIView(ModelViewSet):
@@ -24,45 +30,41 @@ class TaskAPIView(ModelViewSet):
 	# 	return queryset
 
 	def get_serializer_class(self):
-		if self.action in ['create', 'partial_update']:
+		if self.action in ['create', 'update']:
 			serializer_class = CreateTaskSerializer
-		elif self.action in ['update', 'take_task']:
+		elif self.action == 'partial_update':
 			serializer_class = UpdateTaskSerializer
 		else:
 			serializer_class = TaskSerializer
 		return serializer_class
 
 	def get_permissions(self):
-		if self.action in ['destroy', 'partial_update']:
+		if self.action in ['destroy', 'update']:
 			permission_classes = [IsAuthenticated, IsOwner]
-		elif self.action == 'update':
-			permission_classes = [IsAuthenticated]
 		else:
 			permission_classes = [IsAuthenticated]
 		return [permission() for permission in permission_classes]
 
 	def create(self, request, *args, **kwargs):
 		"""Create task if user in team list members."""
-		user = request.user
-		target_teamlist = TeamList.objects.get(pk=request.data['teamlist_relation']).members.values('id')
-		members = [member['id'] for member in target_teamlist]
-
-		if user.pk in members:
-			serializer = self.get_serializer(data=request.data)
-			serializer.is_valid(raise_exception=True)
-			self.perform_create(serializer)
-			headers = self.get_success_headers(serializer.data)
-			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+		data, accept_status = create_task_api_view(self, request, *args, **kwargs)
+		if accept_status == 'accepted':
+			return Response(data=data, status=status.HTTP_201_CREATED)
 		else:
-			raise Exception('У вас не прав для добавления задачи в этот список')
+			return Response(data=data, status=status.HTTP_423_LOCKED)
 
-	@action(methods=['PUT', 'PATCH'], detail=True)
-	def take_task(self, request, pk=None):
-		instance = self.get_object()
-		serializer = self.get_serializer(instance, data=request.data)
-		serializer.is_valid(raise_exception=True)
-		serializer.save()
-		return Response(serializer.data)
+	def update(self, request, *args, **kwargs):
+		data, accept_status = update_task_api_view(self, request, *args, **kwargs)
+		if accept_status == 'accepted':
+			return Response(data=data, status=status.HTTP_200_OK)
+		else:
+			return Response(data=data, status=status.HTTP_423_LOCKED)
+
+	@action(methods=['GET'], detail=False)
+	def my_tasks(self, request):
+		tasks = Task.objects.filter(who_takes=request.user.pk)
+		serializer = TaskSerializer(tasks, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TeamListAPIView(ModelViewSet):

@@ -15,6 +15,7 @@ class TeamList(models.Model):
 	class Meta:
 		verbose_name = 'Командный список'
 		verbose_name_plural = 'Командные списки'
+		ordering = ['title']
 
 	def __str__(self):
 		return self.title
@@ -48,6 +49,7 @@ class Task(models.Model):
 	class Meta:
 		verbose_name = 'Задача'
 		verbose_name_plural = 'Задачи'
+		ordering = ['teamlist_relation']
 
 	def __str__(self):
 		string = f'{self.pk}. {self.title}. Статус: {self.status}. Исполнитель: {self.who_takes}'
