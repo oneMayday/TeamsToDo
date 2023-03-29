@@ -45,7 +45,6 @@ def update_task_api_view(obj, request, *args, **kwargs):
 
 def validate_user_membership(user, data):
 	"""The user can only add(update) tasks to teamlists, where he is a membership."""
-	print(data)
 	target_teamlist_members = TeamList.objects.get(pk=data['teamlist_relation']).members.all()
 	return user in target_teamlist_members
 

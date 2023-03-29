@@ -2,7 +2,7 @@ from todo.tests.test_settings import Settings
 
 
 class TestPermissions(Settings):
-	# Permissions test for guest user
+	# Permissions test for guest user.
 	def test_permissions_guest_user_get_tasks_access_denied(self):
 		list_response = self.guest_user.get('/api/v1/tasks/')
 		detail_response = self.guest_user.get(f'/api/v1/tasks/{self.task1_user1.pk}/')

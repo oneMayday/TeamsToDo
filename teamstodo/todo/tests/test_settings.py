@@ -108,9 +108,9 @@ class Settings(TestCase):
 		)
 
 	@classmethod
-	def tearDownClass(cls):
+	def tearDownClass(cls) -> None:
 		super().tearDownClass()
 
-	def error(self):
+	def error(self) -> str:
 		error_msg = f'\n-------- Ошибка в тесте: {self.id()} --------'
 		return error_msg
