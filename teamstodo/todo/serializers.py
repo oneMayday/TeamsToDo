@@ -1,5 +1,4 @@
-from rest_framework.fields import CurrentUserDefault, HiddenField, ReadOnlyField
-from rest_framework.relations import RelatedField, PrimaryKeyRelatedField
+from rest_framework.fields import CurrentUserDefault, HiddenField
 from rest_framework.serializers import ModelSerializer, StringRelatedField
 
 from .models import Task, TeamList
@@ -11,18 +10,20 @@ class TaskSerializer(ModelSerializer):
 
 	class Meta:
 		model = Task
-		fields = ('pk', 'title', 'status', 'due_date', 'teamlist_relation', 'who_takes', 'owner')
+		exclude = ('create_date', 'update_date',)
 
 
 class CreateTaskSerializer(ModelSerializer):
+	"""Task serializer for create and update."""
 	owner = HiddenField(default=CurrentUserDefault())
 
 	class Meta:
 		model = Task
-		fields = ('pk', 'title', 'status', 'due_date', 'teamlist_relation', 'who_takes', 'owner')
+		exclude = ('create_date', 'update_date',)
 
 
 class UpdateTaskSerializer(ModelSerializer):
+	"""Task serializer for partial-update."""
 	class Meta:
 		model = Task
 		fields = ('status', 'who_takes', 'teamlist_relation')
@@ -31,15 +32,17 @@ class UpdateTaskSerializer(ModelSerializer):
 class TeamListSerializer(ModelSerializer):
 	tasks = StringRelatedField(many=True)
 	owner = StringRelatedField(many=False)
-	who_takes = StringRelatedField(many=False)
 
 	class Meta:
 		model = TeamList
-		fields = ('pk', 'title', 'description', 'tasks', 'owner', 'members', 'who_takes')
+		fields = ('pk', 'title', 'description', 'tasks', 'owner', 'members',)
 
 
 class CreateTeamListSerializer(ModelSerializer):
-	"""Create teamlist without any tasks (tasks could be added later)"""
+	"""
+	Teamlist serializer for creating teamlist.
+	Without any tasks (tasks could be added later).
+	"""
 	owner = HiddenField(default=CurrentUserDefault())
 
 	class Meta:

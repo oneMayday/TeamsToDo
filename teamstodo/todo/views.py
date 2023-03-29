@@ -62,6 +62,7 @@ class TaskAPIView(ModelViewSet):
 
 	@action(methods=['GET'], detail=False)
 	def my_tasks(self, request):
+		"""Get all tasks, that user takes."""
 		tasks = Task.objects.filter(who_takes=request.user.pk)
 		serializer = TaskSerializer(tasks, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
@@ -69,13 +70,12 @@ class TaskAPIView(ModelViewSet):
 
 class TeamListAPIView(ModelViewSet):
 	def get_queryset(self):
-		"""Get teamlists, where user is in membership"""
+		"""Get teamlists, where user is in membership."""
 		user = self.request.user
 		queryset = TeamList.objects.prefetch_related('members').filter(members__pk=user.pk)
 		return queryset
 
 	def get_permissions(self):
-		# Only teamlist owner could change teamlist properties.
 		if self.action in ['update', 'partial_update', 'destroy']:
 			permission_classes = [IsAuthenticated, IsOwner]
 		else:
@@ -91,6 +91,7 @@ class TeamListAPIView(ModelViewSet):
 
 	@action(detail=True, methods=['GET'])
 	def all_tasks(self, request, pk):
+		"""Get all teamlist's tasks."""
 		tasks = Task.objects.select_related('teamlist_relation').filter(teamlist_relation_id=pk)
 		serializer = TaskSerializer(tasks, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
