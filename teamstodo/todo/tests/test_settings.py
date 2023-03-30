@@ -112,5 +112,8 @@ class Settings(TestCase):
 		super().tearDownClass()
 
 	def error(self) -> str:
-		error_msg = f'\n-------- Ошибка в тесте: {self.id()} --------'
+		error_lenght = len(str(self.id()))
+		error_msg = f'\n{24 * "-" + error_lenght * "-"}\n' \
+					f'--- Ошибка в тесте: {self.id()} ---\n' \
+					f'{24 * "-" + error_lenght * "-"}'
 		return error_msg

@@ -30,8 +30,8 @@ class UpdateTaskSerializer(ModelSerializer):
 
 
 class TeamListSerializer(ModelSerializer):
-	tasks = StringRelatedField(many=True)
-	owner = StringRelatedField(many=False)
+	tasks = StringRelatedField(many=True, read_only=True)
+	owner = StringRelatedField(many=False, read_only=True)
 
 	class Meta:
 		model = TeamList

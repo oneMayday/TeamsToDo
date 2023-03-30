@@ -17,17 +17,13 @@ from .utils import update_task_api_view, create_task_api_view
 
 
 class TaskAPIView(ModelViewSet):
-	queryset = Task.objects.all()
-	# def get_queryset(self):  # works
-	# 	"""Get user's taken tasks"""
-	# 	user = self.request.user
-	#
-	# 	teamlist_queryset = TeamList.objects.prefetch_related('members').filter(members__pk=user.pk)
-	# 	queryset = []
-	# 	for tl in teamlist_queryset:
-	# 		result = Task.objects.filter(teamlist_relation_id=tl.pk)
-	# 		queryset.extend(result)
-	# 	return queryset
+	def get_queryset(self):  # works
+		"""Get all tasks from all the teamlist where user in members."""
+		user = self.request.user
+		queryset = Task.objects\
+			.prefetch_related('teamlist_relation__members')\
+			.filter(teamlist_relation__members__id=user.pk)
+		return queryset
 
 	def get_serializer_class(self):
 		if self.action in ['create', 'update']:
@@ -62,7 +58,7 @@ class TaskAPIView(ModelViewSet):
 
 	@action(methods=['GET'], detail=False)
 	def my_tasks(self, request):
-		"""Get all tasks, that user takes."""
+		"""Get user's taken tasks."""
 		tasks = Task.objects.filter(who_takes=request.user.pk)
 		serializer = TaskSerializer(tasks, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
