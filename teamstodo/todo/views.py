@@ -56,7 +56,7 @@ class TaskAPIView(ModelViewSet):
 		else:
 			return Response(data=data, status=status.HTTP_423_LOCKED)
 
-	@action(methods=['GET'], detail=False)
+	@action(methods=['GET'], detail=False, name='all-tasks')
 	def my_tasks(self, request):
 		"""Get user's taken tasks."""
 		tasks = Task.objects.filter(who_takes=request.user.pk)
