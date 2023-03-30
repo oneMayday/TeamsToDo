@@ -4,8 +4,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from ..models import Task
 from ..tests.test_settings import Settings
-from ..views import TeamListAPIView
+from ..views import TeamListAPIView, TaskAPIView
 
 
 class TeamlistViewTestCase(Settings):
@@ -149,6 +150,12 @@ class TeamlistViewTestCase(Settings):
 
 		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, self.error())
 
+	def test_all_tasks_teamlist(self) -> None:
+		url = reverse(f'teamlist-detail', args=(self.team_list2.pk, )) + 'all_tasks/'
+		response = self.authorized_user1.get(url)
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK, self.error())
+
 
 class TaskViewTestCase(Settings):
 	"""
@@ -199,7 +206,7 @@ class TaskViewTestCase(Settings):
 		response = self.authorized_user2.get(url)
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, self.error())
 
-	def test_get_teamlist_detail_positive(self) -> None:
+	def test_get_task_detail_positive(self) -> None:
 		# Test_user1 can get detailed-view task (owner).
 		url = reverse(f'tasks-detail', args=(self.task1_user1.pk,))
 		response = self.authorized_user1.get(url)
@@ -218,14 +225,15 @@ class TaskViewTestCase(Settings):
 		self.assertEqual(response.status_code, status.HTTP_200_OK, self.error())
 		self.assertEqual(response_task, expected_task, self.error())
 
-	def test_post_teamlist_negative(self) -> None:
+	def test_post_task_negative(self) -> None:
 		# User can't post task if choose 'who_takes' != user or None.
+		url = reverse(f'tasks-list')
+
 		request_data = {
 			'title': 'task2_user3',
 			'who_takes': self.test_user1.pk,
 			'teamlist_relation': self.team_list2.pk,
 		}
-		url = reverse(f'tasks-list')
 		response = self.authorized_user3.post(url, request_data)
 		error_string = 'Вы не можете назначить исполнителем другого пользователя.'
 
@@ -237,18 +245,13 @@ class TaskViewTestCase(Settings):
 			'title': 'task2_user3',
 			'teamlist_relation': self.team_list1.pk,
 		}
-
 		response = self.authorized_user3.post(url, request_data)
 		error_string = 'У вас не прав для добавления задачи в этот список'
 
-		print(response.data)
 		self.assertEqual(response.status_code, status.HTTP_423_LOCKED, self.error())
 		self.assertEqual(response.data, error_string, self.error())
 
-	def test_post_teamlist_positive(self) -> None:
-		# Non authorized user cant post teamlist beacuse permissions (see test_permissions).
-		# Owner can put changes.
-
+	def test_post_task_positive(self) -> None:
 		request_data = {
 			'title': 'task2_user3',
 			'teamlist_relation': self.team_list2.pk,
@@ -257,6 +260,96 @@ class TaskViewTestCase(Settings):
 		response = self.authorized_user3.post(url, request_data)
 
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED, self.error())
+
+	def test_put_task_negative(self) -> None:
+		# User can't put task if he's not owner.
+		factory = APIRequestFactory()
+		view = TaskAPIView.as_view({'put': 'update'})
+
+		request_data = {
+			'title': 'task1_user3_update',
+			'teamlist_relation': self.team_list1.pk,
+		}
+		url = reverse(f'tasks-detail', args=(self.task1_user1.pk,))
+		request = factory.put(url, request_data)
+		force_authenticate(request, user=self.test_user2)
+		response = view(request, pk=self.task1_user1.pk)
+		detail_error_string = 'You do not have permission to perform this action.'
+
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, self.error())
+		self.assertEqual(response.data['detail'], detail_error_string, self.error())
+
+	def test_put_task_positive(self) -> None:
+		# User can put task if he's owner.
+		factory = APIRequestFactory()
+		view = TaskAPIView.as_view({'put': 'update'})
+
+		request_data = {
+			'title': 'task1_user3_update',
+			'teamlist_relation': self.team_list2.pk,
+		}
+		url = reverse(f'tasks-detail', args=(self.task1_user3.pk,))
+		request = factory.put(url, request_data)
+		force_authenticate(request, user=self.test_user3)
+		response = view(request, pk=self.task1_user3.pk)
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK, self.error())
+
+	def test_patch_task_negative(self) -> None:
+		# User can't change field 'who_takes' if specified someone other than himself or null
+		# and if he's not owner.
+		factory = APIRequestFactory()
+		view = TaskAPIView.as_view({'patch': 'partial_update'})
+
+		url = reverse(f'tasks-detail', args=(self.task1_user1.pk,))
+
+		request_data = {
+			'who_takes': self.test_user1.pk,
+			'teamlist_relation': self.team_list1.pk,
+		}
+		request = factory.patch(url, request_data)
+		force_authenticate(request, user=self.test_user2)
+		response = view(request, pk=self.task1_user1.pk)
+
+		self.assertEqual(response.status_code, status.HTTP_423_LOCKED, self.error())
+
+	def test_patch_task_positive(self) -> None:
+		# User can change fields 'who_takes' and 'status' if specified himself or null.
+		factory = APIRequestFactory()
+		view = TaskAPIView.as_view({'patch': 'partial_update'})
+		url = reverse(f'tasks-detail', args=(self.task2_user1.pk,))
+
+		request_data = {
+			'status': True,
+			'teamlist_relation': self.team_list1.pk,
+		}
+		request = factory.patch(url, request_data)
+		force_authenticate(request, user=self.test_user2)
+		response = view(request, pk=self.task2_user1.pk)
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK, self.error())
+
+	def test_delete_task_negative(self) -> None:
+		url = reverse(f'tasks-detail', args=(self.task1_user1.pk,), )
+		response = self.authorized_user2.delete(url)
+		detail_error_string = 'You do not have permission to perform this action.'
+
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, self.error())
+		self.assertEqual(response.data['detail'], detail_error_string, self.error())
+
+	def test_delete_task_positive(self) -> None:
+		url = reverse(f'tasks-detail', args=(self.task1_user1.pk,), )
+		response = self.authorized_user1.delete(url)
+
+		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, self.error())
+
+	def test_all_users_tasks(self) -> None:
+		url = reverse(f'tasks-list') + 'my_tasks/'
+		response = self.authorized_user2.get(url)
+		users_tasks = set(Task.objects.filter(who_takes=self.test_user2.pk).values())
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK, self.error())
+		self.assertEqual(set(response.data), users_tasks, self.error())
 
 
 def find_values_in_response_data(response: Response, model_field: str) -> list:

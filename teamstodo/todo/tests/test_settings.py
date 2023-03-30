@@ -74,7 +74,6 @@ class Settings(TestCase):
 		cls.task2_user1 = Task.objects.create(
 			title='Task2 by user1',
 			owner=cls.test_user1,
-			who_takes=cls.test_user2,
 			teamlist_relation=cls.team_list1,
 		)
 		cls.task3_user1 = Task.objects.create(
