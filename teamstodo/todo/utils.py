@@ -51,4 +51,5 @@ def validate_user_membership(user, data):
 
 def validate_is_user_take_task(user, data):
 	"""The user can take the task only for himself (or set None)."""
-	return data['who_takes'] in [user.pk, None]
+	who_takes = data.get('who_takes', None)
+	return who_takes in [user.pk, None]

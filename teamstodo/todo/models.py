@@ -36,6 +36,7 @@ class Task(models.Model):
 		User,
 		on_delete=models.SET_NULL,
 		null=True,
+		blank=True,
 		related_name='who_takes',
 		verbose_name='Исполнитель'
 	)
