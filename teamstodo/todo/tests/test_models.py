@@ -1,5 +1,3 @@
-from datetime import date
-
 from .test_settings import Settings
 
 

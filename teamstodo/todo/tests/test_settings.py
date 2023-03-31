@@ -1,5 +1,3 @@
-import datetime
-
 from django.test import TestCase
 from django.test.client import Client
 
@@ -13,6 +11,7 @@ class Settings(TestCase):
 		super().setUpClass()
 
 		# Add users to db and register them.
+		# User5, task1_user5 and teamlist 3 - only for test_serializers.
 		cls.test_user1 = User.objects.create_user(
 			username='test_user1',
 			email='testuser1-email@test.ru',
@@ -45,6 +44,14 @@ class Settings(TestCase):
 		cls.authorized_user4 = Client()
 		cls.authorized_user4.login(username='test_user4', password='testuser4_password')
 
+		cls.test_user5 = User.objects.create_user(
+			username='test_user5',
+			email='testuser5-email@test.ru',
+			password='testuser5_password',
+		)
+		cls.authorized_user5 = Client()
+		cls.authorized_user5.login(username='test_user5', password='testuser5_password')
+
 		# Anonymous user.
 		cls.guest_user = Client()
 
@@ -62,6 +69,13 @@ class Settings(TestCase):
 			owner=cls.test_user3,
 		)
 		cls.team_list2.members.set([cls.test_user1, cls.test_user3, cls.test_user4])
+
+		cls.team_list3 = TeamList.objects.create(
+			title='Team list3',
+			description='Team list3 description',
+			owner=cls.test_user5, )
+
+		cls.team_list3.members.set([cls.test_user5,])
 
 		# Add tasks to db.
 		cls.task1_user1 = Task.objects.create(
@@ -104,6 +118,14 @@ class Settings(TestCase):
 			owner=cls.test_user4,
 			who_takes=cls.test_user1,
 			teamlist_relation=cls.team_list2,
+		)
+
+		cls.task1_user5 = Task.objects.create(
+			title='Task1 by user5',
+			status=True,
+			owner=cls.test_user5,
+			who_takes=cls.test_user5,
+			teamlist_relation=cls.team_list3,
 		)
 
 	@classmethod
