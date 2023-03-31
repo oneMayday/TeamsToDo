@@ -1,5 +1,5 @@
-from django.urls import reverse
 from django.test.client import RequestFactory
+from django.urls import reverse
 
 from todo.permissions import IsOwner
 from todo.tests.test_settings import Settings

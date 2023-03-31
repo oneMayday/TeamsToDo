@@ -1,6 +1,6 @@
-from todo.tests.test_settings import Settings
+from ..tests.test_settings import Settings
 
-from todo.utils import validate_user_membership, validate_is_user_take_task
+from ..utils import validate_user_membership, validate_is_user_take_task
 
 
 class UtilsTestCase(Settings):

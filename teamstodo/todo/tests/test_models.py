@@ -1,3 +1,5 @@
+from datetime import date
+
 from .test_settings import Settings
 
 
@@ -7,6 +9,9 @@ class ModelTestCase(Settings):
 		self.assertEqual(self.task1_user1.title, 'Task1 by user1', self.error())
 		self.assertTrue(self.task1_user1.status, self.error())
 		self.assertFalse(self.task1_user2.status, self.error())
+		self.assertEqual(self.task1_user1.create_date, date.today(), self.error())
+		self.assertEqual(self.task1_user1.update_date, date.today(), self.error())
+		self.assertEqual(self.task1_user1.due_date, None, self.error())
 		self.assertEqual(self.task1_user1.owner, self.test_user1, self.error())
 		self.assertEqual(self.task1_user1.teamlist_relation, self.team_list1, self.error())
 
@@ -18,6 +23,8 @@ class ModelTestCase(Settings):
 	def test_teamlist_field(self) -> None:
 		self.assertEqual(self.team_list1.title, 'Team list1', self.error())
 		self.assertEqual(self.team_list1.description, 'Team list1 description', self.error())
+		self.assertEqual(self.team_list1.date_create, date.today(), self.error())
+		self.assertEqual(self.team_list1.owner, self.test_user1, self.error())
 		self.assertEqual(
 			[member for member in self.team_list1.members.all()],
 			[self.test_user1, self.test_user2],

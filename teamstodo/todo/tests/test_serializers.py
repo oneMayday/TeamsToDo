@@ -1,13 +1,11 @@
-from datetime import datetime, date
-
-from django.urls import reverse
-from rest_framework import status
-
-from ..models import Task, TeamList
-from ..serializers import TaskSerializer, UpdateTaskSerializer, TeamListSerializer, CreateTeamListSerializer, \
-	CreateTaskSerializer
+from ..serializers import (
+	CreateTaskSerializer,
+	CreateTeamListSerializer,
+	TaskSerializer,
+	TeamListSerializer,
+	UpdateTaskSerializer,
+)
 from ..tests.test_settings import Settings
-from ..views import TeamListAPIView
 
 
 class TeamListSerializersTestCase(Settings):
@@ -59,7 +57,6 @@ class TeamListSerializersTestCase(Settings):
 			'due_date': self.task1_user5.due_date,
 			'who_takes': self.test_user5.pk,
 			'teamlist_relation': self.team_list3.pk,
-
 		}
 
 		self.assertEqual(serializer.data, expected_data, self.error())

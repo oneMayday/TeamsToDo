@@ -354,7 +354,6 @@ class TaskViewTestCase(Settings):
 
 def find_values_in_response_data(response: Response, model_field: str) -> list:
 	"""Unpack response data and check necessary fields."""
-
 	response_data = response.data
 	if isinstance(response_data, list):
 		unpacked_values = [ordered_dict[model_field] for ordered_dict in response_data]
